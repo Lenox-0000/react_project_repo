@@ -13,6 +13,13 @@ function Content()
         set_items(list_items)
         localStorage.setItem('shopping list', JSON.stringify(list_items))
     }
+
+    function handle_delete(id)
+    {
+        const list_items = items.filter((item) => item.id !== id)
+        set_items(list_items)
+        localStorage.setItem('shopping list', JSON.stringify(list_items))
+    }
     // const [name,set_name] = useState('Dave')
 
     // const [count,set_count] = useState(0)
@@ -41,16 +48,19 @@ function Content()
     // }
     return(
         <main>
+            {items.length ? (  
             <ul>
-                {items.map((item)=>( <li className="item" key={item.id} onChange={ ()=>handle_checkid(item.id) }> <input type="checkbox" checked={item.checked}/> <label onDoubleClick={()=>handle_checkid(item.id)}>{item.item}</label> <FaTrashAlt role="button" tabIndex="0"/> </li>))}
+                {items.map((item)=>( <li className="item" key={item.id} onChange={ ()=>handle_checkid(item.id) }> <input type="checkbox" checked={item.checked}/> <label onDoubleClick={()=>handle_checkid(item.id)} style={(item.checked) ? { textDecoration:'line-through'}:null}>{item.item}</label> <FaTrashAlt onClick={() => handle_delete(item.id)} role="button" tabIndex="0"/> </li>))}
             </ul>
+            ) : ( <p style={{marginTop: '2rem'}}> Your list is empty</p>) }
             {/* <p>
                 Hello {name}!
             </p>
             <button onClick={handle_name_change}>Click Here To Change Name</button>
             <button onClick={handle_click}>Click Here Too</button>
             <button onClick={(a) => handle_click_v3(a)}>Click Here Too</button> */}
-        </main>
+         
+            </main>
     )    
 }
 
