@@ -1,25 +1,9 @@
-import { useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import Item_List from "./Item_List";
 
-function Content()
+function Content({items, handle_check_id, handle_delete})
 {
 
-    const [items,set_items] = useState([{id: 1, checked: true, item: "One half pound of Cocoa Covered Almonds Unsalted"},{id: 2, checked: false, item: "Item 2"},{id: 3, checked: false, item: "Item 3"}])
-
-    function handle_checkid(id)
-    {
-        // console.log(`Key: ${id}`)
-        const list_items = items.map((item) => item.id === id ? { ...item, checked: !item.checked }: item)
-        set_items(list_items)
-        localStorage.setItem('shopping list', JSON.stringify(list_items))
-    }
-
-    function handle_delete(id)
-    {
-        const list_items = items.filter((item) => item.id !== id)
-        set_items(list_items)
-        localStorage.setItem('shopping list', JSON.stringify(list_items))
-    }
+    
     // const [name,set_name] = useState('Dave')
 
     // const [count,set_count] = useState(0)
@@ -48,11 +32,7 @@ function Content()
     // }
     return(
         <main>
-            {items.length ? (  
-            <ul>
-                {items.map((item)=>( <li className="item" key={item.id} onChange={ ()=>handle_checkid(item.id) }> <input type="checkbox" checked={item.checked}/> <label onDoubleClick={()=>handle_checkid(item.id)} style={(item.checked) ? { textDecoration:'line-through'}:null}>{item.item}</label> <FaTrashAlt onClick={() => handle_delete(item.id)} role="button" tabIndex="0"/> </li>))}
-            </ul>
-            ) : ( <p style={{marginTop: '2rem'}}> Your list is empty</p>) }
+            {items.length ? (<Item_List items={items} handle_check_id={handle_check_id} handle_delete={handle_delete}/>) : ( <p style={{marginTop: '2rem'}}> Your list is empty</p>) }
             {/* <p>
                 Hello {name}!
             </p>

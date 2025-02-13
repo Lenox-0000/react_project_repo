@@ -1,9 +1,8 @@
-function Header()
+function Header({title})
 {
-    const Header_style = { backgroundColor: 'mediumblue', color: '#fff'}
     return(
-        <header style={Header_style}>
-            <h1>Groceries List</h1>
+        <header>
+            <h1>{title}</h1>
         </header>
     )   
 }
