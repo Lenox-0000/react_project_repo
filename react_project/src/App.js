@@ -2,30 +2,50 @@ import Header from './Header';
 import Item_Add from './Item_Add';
 import Content from './Content';
 import Footer from './Footer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Item_Search from './Item_Search';
-import Challenge from './Challenge';
-import Challenge_input from './Challenge_input';
 
 function App() {
-  const [items,set_items] = useState([{id: 1, checked: true, item: "One half pound of Cocoa Covered Almonds Unsalted"},{id: 2, checked: false, item: "Item 2"},{id: 3, checked: false, item: "Item 3"}])
+  const API_URL = "http://localhost:3500/items"
+
+  const [items,set_items] = useState(JSON.parse(localStorage.getItem('shoppinglist')) || [])
 
   const [new_item,set_new_item] = useState('')
 
   const [search, set_search] = useState('')
 
+  const [fetch_error, set_fetch_error] = useState(null)
+
+  useEffect( () => 
+    {
+      const fetch_items = async() => 
+      {
+        try 
+        {
+          const response = await fetch(API_URL)
+          if (!response.ok) throw Error('Did not recieve expected data')
+          const list_items = await response.json()
+          set_items(list_items); set_fetch_error(null)
+        }
+        catch (error) 
+        {
+          set_fetch_error(error.message)
+        }
+      }
+
+      fetch_items()
+    } , [] )
+
   function handle_check_id(id)
     {
         const list_items = items.map((item) => item.id === id ? { ...item, checked: !item.checked }: item)
         set_items(list_items)
-        localStorage.setItem('shopping list', JSON.stringify(list_items))
     }
 
     function handle_delete(id)
     {
         const list_items = items.filter((item) => item.id !== id)
         set_items(list_items)
-        localStorage.setItem('shopping list', JSON.stringify(list_items))
     }
 
     function add_item(item)
@@ -34,7 +54,6 @@ function App() {
       const my_new_item = { id, checked:false, item }
       const list_items = [...items, my_new_item]
       set_items(list_items)
-      localStorage.setItem('shopping list', JSON.stringify(list_items))
     }
 
     function handle_submit(event)
@@ -43,20 +62,18 @@ function App() {
       if (!new_item) return
       add_item(new_item)
       set_new_item('')
-
     }
-
-    const [background_color_value, set_background_color_value] = useState('')
 
   return (
     <div className="App">
         <Header title={"Grocery List"}/>
         <Item_Search search={search} set_search={set_search}/>
         <Item_Add new_item={new_item} set_new_item={set_new_item} handle_submit={handle_submit}/>
-        <Content items = {items.filter(item => ( (item.item).toLowerCase() ).includes( search.toLowerCase() ))} handle_check_id = {handle_check_id} handle_delete = {handle_delete}/>
+        <main>
+          { fetch_error && <p style={{color: "red"}}>{`Error: ${fetch_error}`}</p>}
+        {!fetch_error &&  <Content items = {items.filter(item => ( (item.item).toLowerCase() ).includes( search.toLowerCase() ))} handle_check_id = {handle_check_id} handle_delete = {handle_delete}/>}
+        </main>
         <Footer length = {items.length}/>
-        {/* <Challenge background_color_value={background_color_value}/>
-        <Challenge_input background_color_value={background_color_value} set_background_color_value={set_background_color_value}/> */}
     </div>
   );
 }
