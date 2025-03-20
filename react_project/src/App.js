@@ -8,13 +8,15 @@ import Item_Search from './Item_Search';
 function App() {
   const API_URL = "http://localhost:3500/items"
 
-  const [items,set_items] = useState(JSON.parse(localStorage.getItem('shoppinglist')) || [])
+  const [items,set_items] = useState([])
 
   const [new_item,set_new_item] = useState('')
 
   const [search, set_search] = useState('')
 
   const [fetch_error, set_fetch_error] = useState(null)
+
+  const [is_loading, set_is_loading] = useState(true)
 
   useEffect( () => 
     {
@@ -23,18 +25,22 @@ function App() {
         try 
         {
           const response = await fetch(API_URL)
-          if (!response.ok) throw Error('Did not recieve expected data')
+          if (!response.ok) throw Error('ERROR')
           const list_items = await response.json()
-          set_items(list_items); set_fetch_error(null)
+          set_items(list_items)
+          set_fetch_error(null)
         }
         catch (error) 
         {
           set_fetch_error(error.message)
         }
+        finally
+        {
+          set_is_loading(false)
+        }
       }
-
-      fetch_items()
-    } , [] )
+      setTimeout( () => { (async () => await fetch_items() )() }, 2000)
+    }, [])
 
   function handle_check_id(id)
     {
@@ -70,8 +76,12 @@ function App() {
         <Item_Search search={search} set_search={set_search}/>
         <Item_Add new_item={new_item} set_new_item={set_new_item} handle_submit={handle_submit}/>
         <main>
-          { fetch_error && <p style={{color: "red"}}>{`Error: ${fetch_error}`}</p>}
-        {!fetch_error &&  <Content items = {items.filter(item => ( (item.item).toLowerCase() ).includes( search.toLowerCase() ))} handle_check_id = {handle_check_id} handle_delete = {handle_delete}/>}
+        {is_loading && <p>Loading...</p>}
+        {fetch_error && <p style={{color: "red"}}> {`Error: ${fetch_error}`} </p>}
+        {!fetch_error && !is_loading && <Content 
+        items = {items.filter(item => ( (item.item).toLowerCase() ).includes( search.toLowerCase() ))}
+        handle_check_id = {handle_check_id}
+        handle_delete = {handle_delete}/>}
         </main>
         <Footer length = {items.length}/>
     </div>
